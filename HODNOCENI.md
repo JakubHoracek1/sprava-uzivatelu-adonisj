@@ -109,8 +109,16 @@ prostředí, ale nároky jsou menší a nic mi tam nepadalo kvůli verzi.
 
 ## Závěr
 
-AdonisJS se mi líbil víc, než jsem čekal. Samotná práce byla příjemná a kód je
-přehledný, hlavně díky TypeScriptu. Odnesl jsem si ale i to, že že před začátkem
-práce se vyplatí ověřit, jestli na počítači běží správná verze Node. Pro menší projekt nebo věc, kde mi záleží na typech, bych ho použil znovu.
-Pokud bych ale potřeboval hotovou administraci nebo rychle sehnat pomoc, vzal
-bych raději Laravel.
+Do AdonisJS jsem se nakonec moc nezamiloval. Samotná správa uživatelů se
+napsala rychle, ale kód mi nepřišel nijak zvlášť příjemný. Spousta věcí se
+děje „na pozadí“ (generované importy, aliasy `#models/...`, spouštění
+TypeScriptu přes SWC) a když něco nefunguje, špatně se hledá proč. Většinu času
+jsem nestrávil psaním aplikace, ale bojem s prostředím, a chybové hlášky mi
+při tom moc nepomáhaly. K tomu menší komunita a méně návodů, takže jsem si
+musel poradit sám. Z téhle zkušenosti bych si příště nejdřív ověřil, jestli na
+počítači běží správná verze Node.
+
+Pokud bych si mohl vybrat, vzal bych raději Laravel. Je pro mě přehlednější,
+má hotová řešení (třeba administraci) a když si nevím rady, najdu odpověď
+během chvilky. AdonisJS bych znovu zkusil nanejvýš tam, kde mi opravdu záleží
+na TypeScriptu.
