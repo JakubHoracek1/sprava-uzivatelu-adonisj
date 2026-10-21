@@ -81,8 +81,8 @@ je to stejné.
 
 ## Srovnání s Laravelem
 
-S Laravelem mám jen základní zkušenost, takže tohle srovnání je hlavně z toho,
-co jsem viděl při práci a v dokumentaci obou frameworků.
+Srovnání vychází z toho, co jsem viděl při práci v Adonisu a v dokumentaci
+obou frameworků.
 
 | | AdonisJS | Laravel |
 |---|---|---|
