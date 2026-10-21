@@ -1,19 +1,20 @@
-# Správa uživatelů v AdonisJS – dojmy, pro a proti, srovnání s Laravelem
+# AdonisJS – moje zkušenost, pro a proti, srovnání s Laravelem
 
-Projekt je ve složce `sprava-uzivatelu/`. Technický postup včetně problémů
-a jejich řešení je v [POSTUP.md](POSTUP.md).
+Zadání bylo vyzkoušet AdonisJS a udělat v něm správu uživatelů nad SQLite.
+Aplikace je ve složce `sprava-uzivatelu/`, podrobný postup i s chybami, které
+jsem cestou řešil, je v [POSTUP.md](POSTUP.md). Tady je spíš to, co si o
+frameworku myslím.
 
-## Co aplikace umí
+## Co jsem vlastně udělal
 
-- registrace a přihlášení (`/signup`, `/login`),
-- správa uživatelů (`/users`): výpis, přidání, úprava, smazání,
-- validace (platný a unikátní e-mail, heslo 8–32 znaků, při úpravě je heslo nepovinné),
-- uživatel nemůže smazat sám sebe, správa je dostupná jen přihlášeným,
-- databáze **SQLite** (`tmp/db.sqlite3`), schéma vytváří migrace.
+Jde o malou aplikaci, kde se dá zaregistrovat, přihlásit a pak v tabulce
+spravovat uživatele: přidat, upravit, smazat. E-mail musí být platný a unikátní,
+heslo má mít 8 až 32 znaků a při úpravě se dá nechat prázdné, pak se nezmění.
+Smazat sám sebe nejde, což je drobnost, ale bez ní by si člověk snadno usekl větev,
+na které sedí. Všechno je dostupné jen po přihlášení. Data jsou v SQLite
+(`tmp/db.sqlite3`) a tabulku vytváří migrace.
 
-## Spuštění
-
-Je potřeba Node.js ≥ 24 a npm ≥ 11.
+Ke spuštění je potřeba Node.js 24 nebo novější:
 
 ```bash
 cd sprava-uzivatelu
@@ -24,82 +25,92 @@ node ace migration:run
 node ace serve --hmr
 ```
 
-Pak otevřít http://localhost:3333/signup, zaregistrovat se a v menu zvolit **Uživatelé**.
+Pak na http://localhost:3333/signup udělat účet a v menu kliknout na Uživatelé.
 
-## Moje dojmy
+## Jak se mi s tím pracovalo
 
-Samotná správa uživatelů šla napsat rychle. Starter kit `hypermedia` už měl tabulku
-`users`, model, registraci a přihlášení. Zbývalo dopsat kontroler, validátory,
-routy a Edge šablony. Jedna řádka `router.resource('users', ...)` vytvořila
-všechny CRUD routy. Kód je čistý a TypeScript při psaní opravdu pomáhá,
-třeba u modelů a validátorů.
+Vlastní programování šlo překvapivě rychle. Starter kit `hypermedia` už přinesl
+model `User`, migraci, registraci i přihlášení, takže jsem dopisoval jen to, co
+v něm chybělo: kontroler, validátory, routy a tři šablony. Jedna řádka
+`router.resource('users', ...)` vyrobí všech šest cest a kontroler pak jen
+doplní metody se stejnými názvy. Připomnělo mi to resource controllery, které
+znám z Laravelu, takže jsem se v tom neztrácel.
 
-Nejvíc času mi ale zabralo **prostředí, ne framework**. Na školním PC jsem musel řešit
-práva ke cache nástroje SWC a hlavně příliš starý Node (AdonisJS 7 chce Node 24,
-na Node 22 padaly migrace i spouštění TypeScriptu). Chybové hlášky přitom
-nebyly vždy nápovědou k příčině (`addQueryContext is not a function`).
+Největší část času mi ale nezabral kód, nýbrž **prostředí na školním počítači**.
+Nejdřív instalátor v PowerShellu nepochopil `--` a hlásil „Non-interactive
+environment“. Pak se SWC (to je nástroj, který překládá TypeScript) odmítl
+spustit, protože složka `D:\Users` patří lokálnímu adminovi a on nevěří ničemu
+pod ní. A nakonec se ukázalo, že AdonisJS 7 chce Node 24, kdežto já měl 22.
+Na něm to padalo na `Unknown file extension ".ts"` a po dalším obejití na
+`addQueryContext is not a function`, kde z hlášky nepoznáte, že je za tím
+vlastně jen stará verze Node. Po updatu všechno naráz fungovalo. Nebyla to chyba
+frameworku, ale kdyby mi to na začátku někdo řekl, ušetřil bych si hodně hodin.
+
+Co se mi líbilo, byla validace. VineJS umí zkontrolovat unikátnost e-mailu přímo
+v databázi a při úpravě stačí předat `meta` s ID právě upravovaného uživatele,
+aby se nehádal sám se sebou. Líbilo se mi i to, že TypeScript hlídá celý řetěz
+od modelu po šablonu a chyby vyskočí hned při `tsc`, ne až když kliknu na tlačítko.
+Naopak mě trochu zlobilo, že formuláře v HTML znají jen GET a POST, takže se
+PUT a DELETE musí posílat přes `?_method=`. To ale není vina Adonisu, v Laravelu
+je to stejné.
 
 ## Pro
 
-- **TypeScript od základu.** Typované modely, validátory i kontrolery, chyby se
-  najdou už při `tsc`, ne až za běhu.
-- **Rychlý start.** Starter kit dá hotovou autentizaci, sessions, CSRF ochranu
-  (`shield`) a layout.
-- **Vestavěné nástroje.** Lucid ORM, migrace, validátor (VineJS), hashování hesel
-  a Edge šablony jsou součástí, nemusí se skládat z cizích balíčků.
-- **Dobrá validace.** VineJS umí unikátnost v databázi i `meta` pro vynechání
-  právě upravovaného záznamu.
-- **Přehledná struktura.** `app/controllers`, `app/models`, `start/routes.ts`,
-  `database/migrations`. Rychle se v tom orientuje, kdo zná MVC.
-- **SQLite bez nastavování.** Stačí driver `better-sqlite3`, žádný databázový server.
+- TypeScript všude. Model, validátor, kontroler, vše má typy a editor
+  napovídá.
+- Dostanete hodně hotového: autentizaci, session, CSRF ochranu, hashování
+  hesel, ORM i migrace. Nemusí se nic lepit z cizích balíčků.
+- Dobře čitelná struktura složek (`app/controllers`, `app/models`,
+  `start/routes.ts`, `database/migrations`). Kdo zná MVC, najde všechno hned.
+- SQLite funguje bez jakékoli konfigurace, žádný databázový server.
+- Příkazová řádka `node ace` je pohodlná, migrace a generování souborů jdou
+  jedním příkazem.
 
 ## Proti
 
-- **Přísné požadavky na prostředí.** Nejnovější verze vyžaduje Node ≥ 24, což
-  na běžném (zejména školním) počítači často není nainstalované.
-- **Menší komunita a méně materiálů.** Většina odpovědí, tutoriálů a balíčků
-  existuje pro Laravel, u Adonisu jsem jich našel mnohem méně.
-- **Dokumentace za vývojem zaostává.** Mezi verzemi se mění API (např. generované
-  kontrolery `#generated/controllers`) a starší návody nesedí.
-- **Hodně „magie“ kolem ESM a TypeScriptu.** Aliasy importů (`#models/...`),
-  spouštění `.ts` přímo v Node a konfigurace SWC dělají problémy, když něco
-  v prostředí nesedí.
-- **Méně hotových řešení.** Na věci jako role, oprávnění nebo administrační
-  rozhraní je potřeba víc psát ručně.
-- **HTML formuláře.** PUT a DELETE se musí posílat přes method spoofing
-  (`?_method=DELETE`), což je ale stejné i v Laravelu.
+- Tvrdé požadavky na prostředí. Aktuální verze potřebuje Node 24, což na
+  školních počítačích a ve starších instalacích prostě není.
+- Menší komunita. Když jsem hledal řešení, odpovědí bylo mnohem míň než u
+  Laravelu a často byly pro starší verzi, která už tak nefunguje.
+- Dokumentace a návody občas zaostávají za novými verzemi. Třeba generované
+  importy kontrolerů (`#generated/controllers`) jsem v tutoriálech nenašel.
+- Chybové hlášky kolem ESM, aliasů importů a SWC nejsou vždy nápomocné.
+  Dá se v nich zabloudit.
+- Na administraci, role nebo oprávnění není skoro nic hotového, tohle se píše
+  ručně.
 
 ## Srovnání s Laravelem
 
-| Oblast | AdonisJS | Laravel (PHP) |
+S Laravelem mám jen základní zkušenost, takže tohle srovnání je hlavně z toho,
+co jsem viděl při práci a v dokumentaci obou frameworků.
+
+| | AdonisJS | Laravel |
 |---|---|---|
-| Jazyk | TypeScript / Node.js | PHP |
-| Architektura | MVC, podobná struktura jako Laravel | MVC |
-| ORM | Lucid (Active Record) | Eloquent (Active Record) |
+| Jazyk | TypeScript (Node.js) | PHP |
+| ORM | Lucid | Eloquent |
 | Šablony | Edge | Blade |
-| Validace | VineJS | `Validator` / Form Requests |
+| Validace | VineJS | Form Requests / Validator |
 | CLI | `node ace` | `php artisan` |
-| Migrace | ano, vestavěné | ano, vestavěné |
-| Autentizace | `@adonisjs/auth`, starter kit | Breeze, Jetstream, Fortify |
-| Typová bezpečnost | silná (TypeScript) | slabší, volitelné typy |
-| Komunita, balíčky, návody | menší | obrovská |
-| Hotová admin řešení | téměř žádná | Filament, Nova, Backpack |
-| Nároky na prostředí | Node 24+, nativní moduly | PHP + Composer, nenáročné |
-| Souběžnost | async/await, jedno vlákno | tradiční request/response |
+| Hotová admin řešení | skoro žádná | Filament, Nova a další |
+| Komunita a návody | malá | velká |
+| Typová bezpečnost | silná | slabší |
 
-Adonis se Laravelu **hodně podobá**: Lucid vs. Eloquent, Edge vs. Blade, `ace`
-vs. `artisan`, resource routy, migrace. Kdo zná Laravel, naučí se Adonis rychle.
+Podobnost je až nápadná. Lucid je prakticky Eloquent, Edge se tváří jako Blade,
+`ace` jako `artisan`, a i resource routy a migrace fungují stejně. Kdo umí
+Laravel, přepne se na Adonis za odpoledne.
 
-Hlavní rozdíl je v **TypeScriptu**. V Adonisu je typová kontrola
-přirozená a dává jistotu, v Laravelu je PHP volnější. Naopak Laravel vyhrává
-**ekosystémem**: balíčky, generátory admin panelů, spousta návodů a snazší
-hostování. U Laravelu by správa uživatelů zabrala podobně dlouho a hotový
-admin panel (Filament) by ji ještě zkrátil.
+Rozdíl vidím hlavně ve dvou věcech. Adonis má **TypeScript**, takže víc chyb
+chytí překladač a kód je jistější. Laravel zase má **ekosystém**: spoustu
+balíčků, generátory administrace jako Filament a díky velké komunitě
+okamžitě najdete odpověď na skoro jakýkoli problém. Správu uživatelů bych
+v Laravelu s Filamentem složil možná za půl hodiny, kdežto tady jsem všechno
+psal ručně. Na druhou stranu Laravel potřebuje PHP a Composer, tedy zase jiné
+prostředí, ale nároky jsou menší a nic mi tam nepadalo kvůli verzi.
 
 ## Závěr
 
-AdonisJS je moderní a příjemný framework pro ty, kdo chtějí psát v TypeScriptu a
-mají jednotné prostředí. Zadání se v něm dalo splnit rychle a výsledek je
-přehledný. Pro školní projekt bych ho použil znovu, ale s předem ověřenou verzí
-Node. Pro větší produkční aplikaci bych při nutnosti rychle najít hotová
-řešení a hodně materiálů sáhl spíš po Laravelu.
+AdonisJS se mi líbil víc, než jsem čekal. Samotná práce byla příjemná a kód je
+přehledný, hlavně díky TypeScriptu. Odnesl jsem si ale i to, že že před začátkem
+práce se vyplatí ověřit, jestli na počítači běží správná verze Node. Pro menší projekt nebo věc, kde mi záleží na typech, bych ho použil znovu.
+Pokud bych ale potřeboval hotovou administraci nebo rychle sehnat pomoc, vzal
+bych raději Laravel.
