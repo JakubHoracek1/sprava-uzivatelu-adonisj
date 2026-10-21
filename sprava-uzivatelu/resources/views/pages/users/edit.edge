@@ -1,0 +1,13 @@
+@layouts.app({ title: 'Upravit uživatele' })
+  @page({ title: 'Upravit uživatele', description: user.email })
+    @form({ route: 'users.update', routeParams: [user.id], class: 'user-form' })
+      @include('pages/users/_fields')
+      <div class="user-form__actions">
+        @!button({ text: 'Uložit', type: 'submit' })
+        @link({ route: 'users.index', class: 'btn btn--ghost' })
+          Zpět
+        @end
+      </div>
+    @end
+  @end
+@end

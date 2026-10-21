@@ -1,0 +1,59 @@
+@layouts.app({ title: 'Uživatelé' })
+  @page({ title: 'Uživatelé', description: 'Správa uživatelů uložených v SQL databázi.' })
+    @slot('actions')
+      @link({ route: 'users.create', class: 'btn btn--primary btn--sm' })
+        @svg('lucide:user-plus', { width: 15, height: 15 })
+        Přidat uživatele
+      @end
+    @end
+
+    @if(users.length)
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Jméno</th>
+              <th>E-mail</th>
+              <th>Vytvořen</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @each(user in users)
+              <tr>
+                <td class="mono">{{ user.id }}</td>
+                <td>{{ user.fullName ?? '—' }}</td>
+                <td>{{ user.email }}</td>
+                <td class="mono">{{ user.createdAt.toFormat('dd.MM.yyyy HH:mm') }}</td>
+                <td class="table__actions">
+                  @link({ route: 'users.edit', routeParams: [user.id], class: 'btn btn--secondary btn--sm' })
+                    @svg('lucide:pencil', { width: 14, height: 14 })
+                    Upravit
+                  @end
+                  @if(user.id !== auth.user.id)
+                    @form({
+                      route: 'users.destroy',
+                      routeParams: [user.id],
+                      'x-data': '',
+                      'x-on:submit': "if (!confirm('Opravdu smazat tohoto uživatele?')) $event.preventDefault()",
+                    })
+                      <button type="submit" class="btn btn--secondary btn--sm btn--danger">
+                        @svg('lucide:trash-2', { width: 14, height: 14 })
+                        Smazat
+                      </button>
+                    @end
+                  @end
+                </td>
+              </tr>
+            @end
+          </tbody>
+        </table>
+      </div>
+    @else
+      <div class="empty">
+        <h1>Zatím žádní uživatelé</h1>
+      </div>
+    @end
+  @end
+@end

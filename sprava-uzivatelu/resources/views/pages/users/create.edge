@@ -1,0 +1,13 @@
+@layouts.app({ title: 'Nový uživatel' })
+  @page({ title: 'Nový uživatel' })
+    @form({ route: 'users.store', class: 'user-form' })
+      @include('pages/users/_fields')
+      <div class="user-form__actions">
+        @!button({ text: 'Vytvořit', type: 'submit' })
+        @link({ route: 'users.index', class: 'btn btn--ghost' })
+          Zpět
+        @end
+      </div>
+    @end
+  @end
+@end

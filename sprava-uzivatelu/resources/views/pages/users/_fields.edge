@@ -1,0 +1,16 @@
+{{-- Form fields shared by the create and edit pages. `user` is set only when editing. --}}
+@field.root({ name: 'fullName' })
+  @!field.label({ text: 'Celé jméno' })
+  @!input.control({ value: user?.fullName, placeholder: 'Jan Novák' })
+  @!field.error()
+@end
+@field.root({ name: 'email' })
+  @!field.label({ text: 'E-mail' })
+  @!input.control({ type: 'email', value: user?.email, placeholder: 'jan@example.com' })
+  @!field.error()
+@end
+@field.root({ name: 'password' })
+  @!field.label({ text: user ? 'Nové heslo (nech prázdné, pokud ho neměníš)' : 'Heslo' })
+  @!input.control({ type: 'password', autocomplete: 'new-password', placeholder: '••••••••' })
+  @!field.error()
+@end
